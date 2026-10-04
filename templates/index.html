@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BankSupport AI</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 120px;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #1f6feb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1558b0;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eef6ff;
+            border-radius: 8px;
+        }
+
+        .result p {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>BankSupport AI</h1>
+
+    <p>
+        AI-Powered Banking Support and Fraud Detection System
+    </p>
+
+    <form method="POST">
+
+        <label>Customer Name</label>
+        <input type="text" name="customer_name" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Ticket Title</label>
+        <input type="text" name="title" required>
+
+        <label>Problem Description</label>
+        <textarea
+            name="description"
+            placeholder="Example: My ATM did not give me cash but money was deducted."
+            required></textarea>
+
+        <button type="submit">
+            Submit Ticket
+        </button>
+
+    </form>
+
+
+    {% if result %}
+
+    <div class="result">
+
+        <h2>AI Ticket Analysis</h2>
+
+        <p>
+            <strong>Ticket ID:</strong>
+            {{ result.ticket_id }}
+        </p>
+
+        <p>
+            <strong>Category:</strong>
+            {{ result.category }}
+        </p>
+
+        <p>
+            <strong>Confidence:</strong>
+            {{ result.confidence }}%
+        </p>
+
+        <p>
+            <strong>Severity:</strong>
+            {{ result.severity }}
+        </p>
+
+        <p>
+            <strong>Priority:</strong>
+            {{ result.priority }}
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
