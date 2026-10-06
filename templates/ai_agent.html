@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Agent – SupportPilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f0f4ff; --sidebar: #0f1b3d; --sidebar-w: 240px;
+      --accent: #3b82f6; --accent2: #06b6d4;
+      --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+    }
+    body { font-family:'Inter',sans-serif; background:var(--bg); display:flex; min-height:100vh; }
+
+    /* ── Sidebar (same as other pages) ── */
+    .sidebar { width:var(--sidebar-w); background:var(--sidebar); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+    .sidebar-brand { padding:24px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .brand-icon { width:38px; height:38px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; }
+    .sidebar-brand span { color:#fff; font-size:17px; font-weight:800; }
+    .sidebar-brand span em { color:#38bdf8; font-style:normal; }
+    .sidebar-nav { flex:1; padding:20px 12px; }
+    .nav-section-label { color:rgba(255,255,255,0.3); font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:0 8px; margin:16px 0 8px; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; color:rgba(255,255,255,0.6); font-size:14px; font-weight:500; text-decoration:none; transition:.15s; margin-bottom:2px; }
+    .nav-item i { width:18px; text-align:center; font-size:15px; }
+    .nav-item:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    .nav-item.active { background:linear-gradient(135deg,rgba(59,130,246,0.25),rgba(6,182,212,0.2)); color:#fff; }
+    .nav-item.active i { color:#60a5fa; }
+    .sidebar-footer { padding:16px 12px; border-top:1px solid rgba(255,255,255,0.08); }
+    .user-info { display:flex; align-items:center; gap:10px; padding:10px; }
+    .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:700; flex-shrink:0; }
+    .user-info-text strong { color:#fff; font-size:13px; display:block; }
+    .user-info-text span   { color:rgba(255,255,255,0.4); font-size:11px; }
+    .logout-btn { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,0.5); font-size:13px; text-decoration:none; transition:.15s; }
+    .logout-btn:hover { background:rgba(239,68,68,0.15); color:#f87171; }
+
+    /* ── Main ── */
+    .main { margin-left:var(--sidebar-w); flex:1; padding:32px; display:flex; flex-direction:column; }
+
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+    .topbar-left h1 { font-size:22px; font-weight:800; color:var(--text); }
+    .topbar-left p  { color:var(--muted); font-size:14px; margin-top:2px; }
+    .milestone-chip { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; }
+
+    /* ── Pipeline visual ── */
+    .pipeline-card { background:var(--card); border-radius:20px; padding:28px; box-shadow:0 2px 20px rgba(15,23,42,0.06); border:1px solid var(--border); margin-bottom:24px; }
+    .pipeline-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:24px; display:flex; align-items:center; gap:8px; }
+    .pipeline-steps { display:flex; align-items:center; gap:0; overflow-x:auto; }
+    .pipe-step { display:flex; flex-direction:column; align-items:center; flex:1; min-width:120px; }
+    .pipe-circle { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:10px; }
+    .pipe-circle.s1 { background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#1d4ed8; }
+    .pipe-circle.s2 { background:linear-gradient(135deg,#dcfce7,#bbf7d0); color:#16a34a; }
+    .pipe-circle.s3 { background:linear-gradient(135deg,#fef3c7,#fde68a); color:#d97706; }
+    .pipe-circle.s4 { background:linear-gradient(135deg,#ede9fe,#ddd6fe); color:#7c3aed; }
+    .pipe-label { font-size:12px; font-weight:600; color:var(--text); text-align:center; }
+    .pipe-sub   { font-size:11px; color:var(--muted); text-align:center; margin-top:2px; }
+    .pipe-arrow { font-size:22px; color:#cbd5e1; padding:0 4px; flex-shrink:0; margin-bottom:22px; }
+
+    /* ── Chat area ── */
+    .chat-grid { display:grid; grid-template-columns:1fr 340px; gap:24px; flex:1; }
+    .chat-card { background:var(--card); border-radius:20px; box-shadow:0 2px 20px rgba(15,23,42,0.06); border:1px solid var(--border); display:flex; flex-direction:column; min-height:500px; }
+    .chat-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+    .chat-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; }
+    .chat-agent-info strong { font-size:14px; color:var(--text); display:block; }
+    .chat-agent-info span   { font-size:12px; color:var(--muted); }
+    .online-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; margin-right:4px; }
+    .chat-messages { flex:1; padding:20px 24px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
+    .msg { display:flex; gap:10px; max-width:85%; }
+    .msg.ai   { align-self:flex-start; }
+    .msg.user { align-self:flex-end; flex-direction:row-reverse; }
+    .msg-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+    .msg.ai   .msg-icon { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; }
+    .msg.user .msg-icon { background:#e2e8f0; color:var(--muted); }
+    .msg-bubble { padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.6; }
+    .msg.ai   .msg-bubble { background:#f0f7ff; border:1px solid #bfdbfe; color:var(--text); border-bottom-left-radius:4px; }
+    .msg.user .msg-bubble { background:linear-gradient(135deg,var(--accent),#1d4ed8); color:#fff; border-bottom-right-radius:4px; }
+    .msg-time { font-size:10px; color:var(--muted); margin-top:4px; text-align:right; }
+
+    .chat-input-area { padding:16px 20px; border-top:1px solid var(--border); display:flex; gap:10px; align-items:flex-end; }
+    .chat-input-wrap { flex:1; }
+    .chat-input-wrap textarea { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; font-family:'Inter',sans-serif; resize:none; min-height:44px; max-height:120px; outline:none; transition:border-color .2s; background:#f8fafc; }
+    .chat-input-wrap textarea:focus { border-color:var(--accent); background:#fff; }
+    .send-btn { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--accent),#1d4ed8); color:#fff; border:none; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:.15s; }
+    .send-btn:hover { transform:scale(1.05); }
+
+    /* Info panel */
+    .info-panel { display:flex; flex-direction:column; gap:16px; }
+    .info-card { background:var(--card); border-radius:18px; padding:20px; box-shadow:0 2px 16px rgba(15,23,42,0.06); border:1px solid var(--border); }
+    .info-card h4 { font-size:13px; font-weight:700; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .info-card h4 i { color:var(--accent); }
+
+    .sample-query { padding:10px 12px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; font-size:13px; color:var(--text); cursor:pointer; transition:.15s; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+    .sample-query:hover { background:#eff6ff; border-color:#bfdbfe; }
+    .sample-query i { color:var(--accent); font-size:12px; flex-shrink:0; }
+
+    .kb-stat { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+    .kb-stat:last-child { border-bottom:none; }
+    .kb-stat span { font-size:13px; color:var(--muted); }
+    .kb-stat strong { font-size:14px; font-weight:700; color:var(--text); }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-robot"></i></div>
+    <span>Support<em>Pilot</em></span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-grid-2"></i> Dashboard</a>
+    <a href="/" class="nav-item"><i class="fas fa-ticket"></i> New Ticket</a>
+    <a href="/ai-agent" class="nav-item active"><i class="fas fa-robot"></i> AI Agent</a>
+    <div class="nav-section-label">Analytics</div>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-chart-bar"></i> Analytics</a>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-database"></i> Knowledge Base</a>
+    <div class="nav-section-label">System</div>
+    <a href="#" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">{{ current_user.name[0]|upper if current_user and current_user.name else 'A' }}</div>
+      <div class="user-info-text">
+        <strong>{{ current_user.name if current_user and current_user.name else 'Agent' }}</strong>
+        <span>{{ current_user.role|capitalize if current_user and current_user.role else 'Support Agent' }}</span>
+      </div>
+    </div>
+    <a href="/logout" class="logout-btn"><i class="fas fa-right-from-bracket"></i> Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>AI Resolution Agent</h1>
+      <p>RAG-powered troubleshooting and response generation</p>
+    </div>
+    <div class="milestone-chip"><i class="fas fa-robot"></i> SupportPilot AI</div>
+  </div>
+
+  <!-- Pipeline visual -->
+  <div class="pipeline-card">
+    <div class="pipeline-title"><i class="fas fa-diagram-project" style="color:var(--accent)"></i> RAG Workflow Pipeline</div>
+    <div class="pipeline-steps">
+      <div class="pipe-step">
+        <div class="pipe-circle s1"><i class="fas fa-magnifying-glass-chart"></i></div>
+        <div class="pipe-label">Ticket Analysis</div>
+        <div class="pipe-sub">Query Generation</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-circle s2"><i class="fas fa-book-open"></i></div>
+        <div class="pipe-label">KB Retrieval</div>
+        <div class="pipe-sub">TF-IDF + Cosine</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-circle s3"><i class="fas fa-layer-group"></i></div>
+        <div class="pipe-label">Context Augment</div>
+        <div class="pipe-sub">Article injection</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-circle s4"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <div class="pipe-label">Resolution</div>
+        <div class="pipe-sub">Cited steps</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-grid">
+    <!-- Chat -->
+    <div class="chat-card">
+      <div class="chat-header">
+        <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+        <div class="chat-agent-info">
+          <strong>SupportPilot AI</strong>
+          <span><span class="online-dot"></span>Online · Powered by RAG pipeline</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">
+          <div class="msg-icon"><i class="fas fa-robot"></i></div>
+          <div>
+            <div class="msg-bubble">
+              👋 Hello! I'm SupportPilot AI, your banking support assistant.<br><br>
+              Describe a customer's banking issue and I'll run it through the 4-step RAG pipeline to generate a cited resolution from our knowledge base.<br><br>
+              <strong>Try a sample query →</strong>
+            </div>
+            <div class="msg-time">Just now</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-wrap">
+          <textarea id="chatInput" placeholder="Describe the banking issue… e.g. 'Customer's ATM card was swallowed by machine'" rows="1" onkeydown="handleKey(event)"></textarea>
+        </div>
+        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel">
+      <div class="info-card">
+        <h4><i class="fas fa-bolt"></i> Sample Queries</h4>
+        {% set samples = [
+          'ATM cash not dispensed but amount debited',
+          'Unauthorized credit card transaction',
+          'UPI payment failed but money deducted',
+          'Card blocked after wrong PIN attempts',
+          'Loan EMI auto-debit failed',
+          'KYC update required for account'
+        ] %}
+        {% for q in samples %}
+        <div class="sample-query" onclick="fillQuery('{{ q }}')">
+          <i class="fas fa-chevron-right"></i> {{ q }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="info-card">
+        <h4><i class="fas fa-database"></i> Knowledge Base Stats</h4>
+        <div class="kb-stat"><span>Total Articles</span><strong>{{ kb_count }}</strong></div>
+        <div class="kb-stat"><span>Categories</span><strong>{{ kb_categories }}</strong></div>
+        <div class="kb-stat"><span>Retrieval Method</span><strong>TF-IDF</strong></div>
+        <div class="kb-stat"><span>Min Relevance</span><strong>5%</strong></div>
+        <div class="kb-stat"><span>Top-K Results</span><strong>3</strong></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function fillQuery(q) {
+    document.getElementById('chatInput').value = q;
+    document.getElementById('chatInput').focus();
+  }
+
+  function getTime() {
+    return new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function appendMsg(role, html) {
+    const box = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    const icon = role === 'ai' ? 'robot' : 'user';
+    div.innerHTML = `
+      <div class="msg-icon"><i class="fas fa-${icon}"></i></div>
+      <div>
+        <div class="msg-bubble">${html}</div>
+        <div class="msg-time">${getTime()}</div>
+      </div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function appendTyping() {
+    const box = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ai'; div.id = 'typingIndicator';
+    div.innerHTML = `
+      <div class="msg-icon"><i class="fas fa-robot"></i></div>
+      <div><div class="msg-bubble" style="color:#64748b;">
+        <span style="display:inline-flex;gap:4px;">
+          <span style="animation:bounce .6s infinite">●</span>
+          <span style="animation:bounce .6s .1s infinite">●</span>
+          <span style="animation:bounce .6s .2s infinite">●</span>
+        </span> Analysing with RAG pipeline…
+      </div></div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text  = input.value.trim();
+    if (!text) return;
+    appendMsg('user', text);
+    input.value = '';
+    appendTyping();
+
+    try {
+      const res  = await fetch('/api/rag-query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: text })
+      });
+      const data = await res.json();
+      document.getElementById('typingIndicator')?.remove();
+
+      if (data.error) { appendMsg('ai', '⚠️ ' + data.error); return; }
+
+      let html = `<strong>📋 RAG Analysis Complete</strong><br><br>`;
+      html += `<strong>Keywords detected:</strong> ${data.keywords.join(', ') || 'none'}<br>`;
+      html += `<strong>KB articles retrieved:</strong> ${data.retrieved.length}<br><br>`;
+
+      if (data.retrieved.length > 0) {
+        html += `<strong>📚 Sources:</strong><br>`;
+        data.retrieved.forEach(d => {
+          html += `• <em>${d.id}</em>: ${d.title} <span style="color:#3b82f6;font-size:11px;">(${(d.score*100).toFixed(1)}% match)</span><br>`;
+        });
+        html += `<br><strong>✅ Resolution Steps:</strong><br>`;
+        data.steps.forEach(s => {
+          html += `<strong>${s.step}.</strong> ${s.text}<br><span style="color:#94a3b8;font-size:11px;">↳ ${s.source_id} – ${s.source_title}</span><br><br>`;
+        });
+      } else {
+        html += `⚠️ No relevant KB articles found. Please escalate to a human agent.`;
+      }
+      appendMsg('ai', html);
+    } catch(e) {
+      document.getElementById('typingIndicator')?.remove();
+      appendMsg('ai', '❌ Error connecting to the RAG pipeline. Please try again.');
+    }
+  }
+</script>
+<style>
+  @keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)} }
+</style>
+</body>
+</html>
