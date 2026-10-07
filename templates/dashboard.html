@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankSupport AI - Multi-Agent Resolution Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🏦</div>
+                <div>
+                    <div class="brand-title">BankSupport AI</div>
+                    <div class="brand-sub">Milestone 3</div>
+                </div>
+            </div>
+            <nav id="sidebarNav">
+                <a href="#dashboard" class="nav-item active" data-tab="dashboard-view">▦ Dashboard</a>
+                <a href="#queries" class="nav-item" data-tab="queries-view">🎫 Customer Queries</a>
+                <a href="#agents" class="nav-item" data-tab="agents-view">🤖 AI Agents</a>
+                <a href="#knowledge" class="nav-item" data-tab="knowledge-view">📚 Knowledge Base</a>
+                <a href="#escalations" class="nav-item" data-tab="escalations-view">⚠ Escalated Cases</a>
+                <a href="#jira" class="nav-item" data-tab="jira-view">🔗 Jira Tickets</a>
+                <a href="#emails" class="nav-item" data-tab="emails-view">✉ Email Logs</a>
+                <a href="#analytics" class="nav-item" data-tab="analytics-view">📊 Analytics</a>
+                <a href="#settings" class="nav-item" data-tab="settings-view">⚙ Settings</a>
+            </nav>
+            <div class="secure-box">
+                <div class="secure-title">🔒 Bank Security Protocols</div>
+                <div class="secure-desc">Automated validation & strict PII protection active.</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main">
+            <!-- Header -->
+            <header class="top-header">
+                <div>
+                    <div class="eyebrow">ENTERPRISE MULTI-AGENT PLATFORM</div>
+                    <h1 id="pageTitle">Multi-Agent Support Engine</h1>
+                    <p class="muted">AI Diagnosis, Semantic Retrieval, Resolution Generation, Validation & Escalation
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <button class="refresh-btn" onclick="loadAllData()">↻ Refresh Data</button>
+                    <div class="status-pill">● LIVE SYSTEM ONLINE</div>
+                </div>
+            </header>
+
+            <!-- Dynamic Stat Banner -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">💬</div>
+                    <div>
+                        <span class="stat-label">Total Queries</span>
+                        <strong id="statQueries">0</strong>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <div>
+                        <span class="stat-label">Auto Resolved</span>
+                        <strong id="statResolved">0</strong>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">⚠</div>
+                    <div>
+                        <span class="stat-label">Escalated Cases</span>
+                        <strong id="statEscalated">0</strong>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🎯</div>
+                    <div>
+                        <span class="stat-label">Avg AI Confidence</span>
+                        <strong id="statConfidence">0%</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 1: DASHBOARD VIEW -->
+            <section id="dashboard-view" class="tab-view active">
+                <!-- Multi-Agent Workflow Pipeline Visualizer -->
+                <div class="workflow-card">
+                    <h3>Multi-Agent Workflow Architecture</h3>
+                    <div class="pipeline-flow">
+                        <div class="flow-step" id="step-diag">
+                            <div class="step-badge">Agent 1</div>
+                            <div class="step-title">🔍 Diagnosis</div>
+                            <div class="step-desc">Classifies intent & risk</div>
+                        </div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-step" id="step-retrieval">
+                            <div class="step-badge">Agent 2</div>
+                            <div class="step-title">📚 Retrieval</div>
+                            <div class="step-desc">Matches knowledge base</div>
+                        </div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-step" id="step-resolution">
+                            <div class="step-badge">Agent 3</div>
+                            <div class="step-title">🛠 Resolution</div>
+                            <div class="step-desc">Generates step guide</div>
+                        </div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-step" id="step-validation">
+                            <div class="step-badge">Agent 4</div>
+                            <div class="step-title">✓ Validation</div>
+                            <div class="step-desc">Evaluates confidence score</div>
+                        </div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-step" id="step-escalation">
+                            <div class="step-badge">Agent 5</div>
+                            <div class="step-title">⚠ Escalation</div>
+                            <div class="step-desc">Jira / Email integration</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Query Input Workspace & Results -->
+                <div class="workspace-grid">
+                    <!-- Left Form Panel -->
+                    <div class="panel form-panel">
+                        <h2>Submit Banking Query</h2>
+                        <p class="panel-desc">Test the AI multi-agent resolution workflow in real time.</p>
+
+                        <div class="sample-chips">
+                            <span class="chip-label">Quick Samples:</span>
+                            <button class="chip" onclick="fillSample('upi')">Failed UPI Transaction</button>
+                            <button class="chip" onclick="fillSample('atm')">ATM Cash Not Dispensed</button>
+                            <button class="chip" onclick="fillSample('fraud')">Unauthorized Transaction</button>
+                            <button class="chip" onclick="fillSample('pwd')">Forgot Net Banking PIN</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customerName">Customer Name</label>
+                            <input id="customerName" placeholder="e.g. Rahul Sharma" value="Rahul Sharma">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Customer Email (For Case Notifications)</label>
+                            <input id="email" type="email" placeholder="name@yourdomain.com" value="">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="query">Banking Issue Description</label>
+                            <textarea id="query" rows="5"
+                                placeholder="Describe the banking issue or inquiry..."></textarea>
+                        </div>
+
+                        <button id="processBtn" class="primary-btn" onclick="processQuery()">⚡ Process Query via AI
+                            Workflow</button>
+                        <div id="processing" class="processing-status"></div>
+                    </div>
+
+                    <!-- Right Results Panel -->
+                    <div class="panel result-panel">
+                        <h2>AI Resolution Result</h2>
+                        <div id="result" class="empty-state">
+                            <div class="empty-icon">🤖</div>
+                            <div class="empty-title">Ready for Query Processing</div>
+                            <div class="empty-desc">Submit a query on the left to see diagnosis, confidence scoring,
+                                knowledge retrieval, and automated resolution actions.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: CUSTOMER QUERIES VIEW -->
+            <section id="queries-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Customer Queries History</h2>
+                    <div class="table-controls">
+                        <input id="querySearch" class="search-input" placeholder="Search queries..."
+                            onkeyup="filterQueriesTable()">
+                        <select id="queryFilterStatus" class="select-input" onchange="filterQueriesTable()">
+                            <option value="">All Statuses</option>
+                            <option value="AUTO_RESOLVE">AUTO RESOLVE</option>
+                            <option value="ESCALATE">ESCALATE</option>
+                        </select>
+                        <button class="danger-btn" onclick="clearAllCases()">Clear History</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="queriesTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Customer</th>
+                                <th>Category</th>
+                                <th>Query Summary</th>
+                                <th>Risk Level</th>
+                                <th>Confidence</th>
+                                <th>Status</th>
+                                <th>Integrations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queriesTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: AI AGENTS VIEW -->
+            <section id="agents-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Multi-Agent AI Architecture Overview</h2>
+                    <p class="muted">Explore details and specs of all 5 autonomous support agents.</p>
+                </div>
+                <div class="agents-grid" id="agentsList">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- TAB 4: KNOWLEDGE BASE VIEW -->
+            <section id="knowledge-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Banking Knowledge Base</h2>
+                    <button class="primary-btn sm" onclick="showAddKbModal()">+ Add Knowledge Article</button>
+                </div>
+                <div class="table-controls mb-20">
+                    <input id="kbSearch" class="search-input" placeholder="Search articles..."
+                        onkeyup="loadKnowledgeBase()">
+                    <select id="kbCategory" class="select-input" onchange="loadKnowledgeBase()">
+                        <option value="">All Categories</option>
+                        <option value="UPI">UPI</option>
+                        <option value="ATM">ATM</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Authentication">Authentication</option>
+                        <option value="Net Banking">Net Banking</option>
+                        <option value="Fund Transfer">Fund Transfer</option>
+                        <option value="Fraud">Fraud</option>
+                    </select>
+                </div>
+                <div class="kb-grid" id="kbGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- TAB 5: ESCALATED CASES VIEW -->
+            <section id="escalations-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Escalated Case Audits</h2>
+                    <p class="muted">Cases requiring manual agent support due to High Risk or low confidence.</p>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Customer</th>
+                                <th>Category</th>
+                                <th>Query</th>
+                                <th>Risk</th>
+                                <th>Confidence</th>
+                                <th>Jira Ticket Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="escalationsTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 6: JIRA TICKETS VIEW -->
+            <section id="jira-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Jira Integration Tickets</h2>
+                    <p class="muted">Log of support tickets created in Atlassian Jira.</p>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Customer</th>
+                                <th>Issue Summary</th>
+                                <th>Risk</th>
+                                <th>Jira Ticket Key</th>
+                                <th>API Response Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jiraTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 7: EMAIL LOGS VIEW -->
+            <section id="emails-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Email Notification Logs</h2>
+                    <p class="muted">Log of customer emails dispatched upon resolution.</p>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Customer</th>
+                                <th>Recipient Email</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>SMTP Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emailsTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 8: ANALYTICS VIEW -->
+            <section id="analytics-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>System Analytics & AI Performance</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="panel">
+                        <h3>Query Distribution by Category</h3>
+                        <div id="categoryBars" class="chart-bars">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h3>Risk Level Distribution</h3>
+                        <div id="riskBars" class="chart-bars">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 9: SETTINGS VIEW -->
+            <section id="settings-view" class="tab-view">
+                <div class="panel-header">
+                    <h2>Platform Settings & Integration Config</h2>
+                </div>
+                <div class="settings-card">
+                    <h3>Auto-Resolution Confidence Threshold</h3>
+                    <p class="muted">Queries above this threshold will auto-resolve; queries below will escalate.</p>
+                    <div class="form-group inline">
+                        <label>Current Threshold: <strong id="currentThresholdLabel">75%</strong></label>
+                        <input type="range" id="thresholdSlider" min="50" max="95" step="5" value="75"
+                            oninput="document.getElementById('currentThresholdLabel').textContent = this.value + '%'">
+                        <button class="primary-btn sm" onclick="saveSettings()">Save Threshold</button>
+                    </div>
+                </div>
+
+                <div class="settings-card mt-20">
+                    <h3>Integration Connection Status</h3>
+                    <div id="settingsInfo" class="settings-info-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal for Add KB Article -->
+    <div id="kbModal" class="modal-backdrop hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Knowledge Base Article</h3>
+                <button class="modal-close" onclick="hideAddKbModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Article Title</label>
+                    <input id="newKbTitle" placeholder="e.g. Credit Card Dispute Procedure">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="newKbCategory" class="select-input w-full">
+                        <option value="UPI">UPI</option>
+                        <option value="ATM">ATM</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Authentication">Authentication</option>
+                        <option value="Net Banking">Net Banking</option>
+                        <option value="Fund Transfer">Fund Transfer</option>
+                        <option value="Fraud">Fraud</option>
+                        <option value="General Banking">General Banking</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Resolution Instructions / Content</label>
+                    <textarea id="newKbContent" rows="5"
+                        placeholder="Enter resolution steps separated by periods..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" onclick="hideAddKbModal()">Cancel</button>
+                <button class="primary-btn" onclick="submitNewKbArticle()">Save Article</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+
+</html>
