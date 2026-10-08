@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Ticket – SupportPilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4ff;
+      --sidebar: #0f1b3d;
+      --sidebar-w: 240px;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+    .sidebar-brand {
+      padding: 24px 20px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-brand .brand-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px;
+    }
+    .sidebar-brand span { color: #fff; font-size: 17px; font-weight: 800; }
+    .sidebar-brand span em { color: #38bdf8; font-style: normal; }
+
+    .sidebar-nav { flex: 1; padding: 20px 12px; }
+    .nav-section-label {
+      color: rgba(255,255,255,0.3); font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 0 8px; margin: 16px 0 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 12px; border-radius: 10px;
+      color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500;
+      text-decoration: none; transition: background .15s, color .15s;
+      margin-bottom: 2px;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(6,182,212,0.2)); color: #fff; }
+    .nav-item.active i { color: #60a5fa; }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .user-info {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 10px;
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-info-text strong { color: #fff; font-size: 13px; display: block; }
+    .user-info-text span   { color: rgba(255,255,255,0.4); font-size: 11px; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      color: rgba(255,255,255,0.5); font-size: 13px;
+      text-decoration: none; transition: background .15s, color .15s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.15); color: #f87171; }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; }
+
+    /* Top bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .topbar-left h1 { font-size: 22px; font-weight: 800; color: var(--text); }
+    .topbar-left p  { color: var(--muted); font-size: 14px; margin-top: 2px; }
+    .milestone-chip {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-size: 12px; font-weight: 700;
+      padding: 6px 16px; border-radius: 20px;
+    }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+    .card {
+      background: var(--card); border-radius: 20px;
+      padding: 28px; box-shadow: 0 2px 20px rgba(15,23,42,0.06);
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      margin-bottom: 22px;
+    }
+    .card-title .icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .icon.blue   { background: rgba(59,130,246,0.1); color: var(--accent); }
+    .icon.green  { background: rgba(16,185,129,0.1); color: #10b981; }
+    .icon.purple { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+    .icon.orange { background: rgba(249,115,22,0.1); color: #f97316; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #374151; margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap i {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af; font-size: 14px; pointer-events: none;
+    }
+    .input-wrap input, .input-wrap select, .input-wrap textarea {
+      width: 100%; padding: 11px 14px 11px 40px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      color: var(--text); background: #f8fafc;
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    .input-wrap textarea {
+      padding-top: 12px; resize: vertical; min-height: 130px;
+      vertical-align: top;
+    }
+    .input-wrap input:focus, .input-wrap select:focus, .input-wrap textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+      background: #fff;
+    }
+
+    .btn-submit {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+      transition: transform .15s, box-shadow .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(59,130,246,0.45); }
+
+    /* Result card */
+    .result-section { display: none; }
+    .result-section.show { display: block; }
+
+    /* AI badge */
+    .ai-classification {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .ai-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      flex: 1; min-width: 130px;
+    }
+    .ai-badge .badge-icon { font-size: 18px; }
+    .ai-badge-text span { font-size: 11px; color: var(--muted); display: block; }
+    .ai-badge-text strong { font-size: 14px; font-weight: 700; color: var(--text); }
+
+    /* RAG Workflow status */
+    .rag-workflow { margin-bottom: 22px; }
+    .rag-workflow h4 { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+    .workflow-steps { display: flex; flex-direction: column; gap: 10px; }
+    .wf-step {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      background: #f8fafc; border: 1px solid var(--border);
+    }
+    .wf-num {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .wf-num.done   { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+    .wf-num.pending{ background: #e2e8f0; color: var(--muted); }
+    .wf-label { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+    .wf-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .wf-status.completed { background: #dcfce7; color: #16a34a; }
+    .wf-status.pending   { background: #f1f5f9; color: var(--muted); }
+
+    /* KB docs */
+    .kb-docs { margin-bottom: 22px; }
+    .kb-doc {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      margin-bottom: 8px;
+    }
+    .kb-doc-icon { color: var(--accent); font-size: 16px; flex-shrink: 0; }
+    .kb-doc-info { flex: 1; }
+    .kb-doc-info strong { font-size: 13px; color: var(--text); display: block; }
+    .kb-doc-info span   { font-size: 11px; color: var(--muted); }
+    .kb-relevance {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; background: #dbeafe; color: #1d4ed8;
+    }
+
+    /* Resolution steps */
+    .resolution-steps { list-style: none; }
+    .resolution-steps li {
+      display: flex; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .resolution-steps li:last-child { border-bottom: none; }
+    .step-circle {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body p { font-size: 14px; color: var(--text); line-height: 1.6; }
+    .step-cite { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .step-cite a { color: var(--accent); text-decoration: none; }
+
+    /* Metrics row */
+    .metrics-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 22px; }
+    .metric-mini {
+      text-align: center; padding: 14px 10px;
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .metric-mini .val { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .metric-mini .lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    @media (max-width: 960px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .main { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-robot"></i></div>
+    <span>Support<em>Pilot</em></span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-grid-2"></i> Dashboard</a>
+    <a href="/" class="nav-item active"><i class="fas fa-ticket"></i> New Ticket</a>
+    <a href="/ai-agent" class="nav-item"><i class="fas fa-robot"></i> AI Agent</a>
+
+    <div class="nav-section-label">Analytics</div>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-chart-bar"></i> Analytics</a>
+    <a href="/dashboard" class="nav-item"><i class="fas fa-database"></i> Knowledge Base</a>
+
+    <div class="nav-section-label">System</div>
+    <a href="#" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">{{ current_user.name[0]|upper if current_user and current_user.name else 'A' }}</div>
+      <div class="user-info-text">
+        <strong>{{ current_user.name if current_user and current_user.name else 'Agent' }}</strong>
+        <span>{{ current_user.role|capitalize if current_user and current_user.role else 'Support Agent' }}</span>
+      </div>
+    </div>
+    <a href="/logout" class="logout-btn"><i class="fas fa-right-from-bracket"></i> Logout</a>
+  </div>
+</aside>
+
+<!-- ── Main Content ── -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Submit Support Ticket</h1>
+      <p>AI-powered classification + RAG resolution pipeline</p>
+    </div>
+    <div class="milestone-chip"><i class="fas fa-robot"></i> SupportPilot AI</div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- LEFT: Ticket Form -->
+    <div class="card">
+      <div class="card-title">
+        <div class="icon blue"><i class="fas fa-ticket"></i></div>
+        Create New Ticket
+      </div>
+
+      <form method="POST" id="ticketForm">
+        <div class="form-group">
+          <label>Customer Name</label>
+          <div class="input-wrap">
+            <i class="fas fa-user"></i>
+            <input type="text" name="customer_name" placeholder="Rahul Sharma" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Customer Email</label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" placeholder="rahul@gmail.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Issue Title</label>
+          <div class="input-wrap">
+            <i class="fas fa-heading"></i>
+            <input type="text" name="title" placeholder="e.g. ATM cash not dispensed but amount debited" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Detailed Description</label>
+          <div class="input-wrap">
+            <i class="fas fa-align-left" style="top:18px;transform:none;"></i>
+            <textarea name="description" placeholder="Describe the issue in detail — what happened, when, transaction ID if available…" required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-paper-plane"></i> Submit &amp; Analyse with AI
+        </button>
+      </form>
+    </div>
+
+    <!-- RIGHT: AI Result -->
+    <div>
+      {% if result %}
+      <!-- AI Classification Badges -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">
+          <div class="icon green"><i class="fas fa-brain"></i></div>
+          AI Classification Result
+        </div>
+
+        <div class="ai-classification">
+          <div class="ai-badge">
+            <span class="badge-icon">🎫</span>
+            <div class="ai-badge-text"><span>Ticket ID</span><strong>#{{ result.ticket_id }}</strong></div>
+          </div>
+          <div class="ai-badge">
+            <span class="badge-icon">🏷️</span>
+            <div class="ai-badge-text"><span>Category</span><strong>{{ result.category }}</strong></div>
+          </div>
+          <div class="ai-badge">
+            <span class="badge-icon">📊</span>
+            <div class="ai-badge-text"><span>Confidence</span><strong>{{ result.confidence }}%</strong></div>
+          </div>
+          <div class="ai-badge">
+            <span class="badge-icon">⚡</span>
+            <div class="ai-badge-text"><span>Severity</span>
+              <strong style="color:{% if result.severity=='High' %}#dc2626{% else %}#d97706{% endif %}">{{ result.severity }}</strong>
+            </div>
+          </div>
+          <div class="ai-badge">
+            <span class="badge-icon">🎯</span>
+            <div class="ai-badge-text"><span>Priority</span><strong>{{ result.priority }}</strong></div>
+          </div>
+          <div class="ai-badge">
+            <span class="badge-icon">⏱️</span>
+            <div class="ai-badge-text"><span>Response Time</span><strong>{{ result.response_time }}s</strong></div>
+          </div>
+        </div>
+
+        <!-- Metrics mini -->
+        <div class="metrics-row">
+          <div class="metric-mini">
+            <div class="val">{{ result.retrieval_accuracy }}%</div>
+            <div class="lbl">Retrieval Accuracy</div>
+          </div>
+          <div class="metric-mini">
+            <div class="val">{{ result.resolution_rate }}%</div>
+            <div class="lbl">Resolution Rate</div>
+          </div>
+          <div class="metric-mini">
+            <div class="val">{{ result.response_time }}s</div>
+            <div class="lbl">Avg Response Time</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAG Workflow -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">
+          <div class="icon purple"><i class="fas fa-diagram-project"></i></div>
+          RAG Workflow Status
+        </div>
+        <div class="workflow-steps">
+          {% set steps = [
+            ('Ticket Analysis & Query Generation', result.workflow.ticket_analysis),
+            ('Knowledge Base Retrieval',           result.workflow.knowledge_retrieval),
+            ('Context Augmentation',               result.workflow.context_augmentation),
+            ('Response Generation',                result.workflow.response_generation)
+          ] %}
+          {% for label, status in steps %}
+          <div class="wf-step">
+            <div class="wf-num done">{{ loop.index }}</div>
+            <div class="wf-label">{{ label }}</div>
+            <span class="wf-status {{ status }}">{{ status|capitalize }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- KB Docs Retrieved -->
+      {% if result.retrieved_docs %}
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">
+          <div class="icon blue"><i class="fas fa-book-open"></i></div>
+          Retrieved Knowledge Base Articles
+        </div>
+        {% for doc in result.retrieved_docs %}
+        <div class="kb-doc">
+          <i class="fas fa-file-lines kb-doc-icon"></i>
+          <div class="kb-doc-info">
+            <strong>{{ doc.title }}</strong>
+            <span>{{ doc.id }} · {{ doc.category }}</span>
+          </div>
+          <span class="kb-relevance">{{ (doc.score * 100)|round(1) }}% match</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Resolution -->
+      <div class="card">
+        <div class="card-title">
+          <div class="icon orange"><i class="fas fa-wand-magic-sparkles"></i></div>
+          AI-Generated Resolution
+        </div>
+        {% if result.resolution.status == 'RESOLVED' %}
+        <ul class="resolution-steps">
+          {% for step in result.resolution.steps %}
+          <li>
+            <div class="step-circle">{{ step.step }}</div>
+            <div class="step-body">
+              <p>{{ step.text }}</p>
+              <div class="step-cite">
+                <i class="fas fa-book-open"></i> Source: {{ step.source_id }} – {{ step.source_title }}
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div style="padding:20px;text-align:center;color:#64748b;">
+          <i class="fas fa-circle-exclamation" style="font-size:32px;color:#f97316;margin-bottom:12px;display:block;"></i>
+          <strong>{{ result.resolution.message }}</strong>
+        </div>
+        {% endif %}
+      </div>
+
+      {% else %}
+      <!-- Placeholder when no result yet -->
+      <div class="card" style="text-align:center;padding:60px 40px;">
+        <div style="font-size:64px;margin-bottom:20px;">🤖</div>
+        <h3 style="color:#0f172a;font-size:18px;margin-bottom:10px;">AI Resolution Generator</h3>
+        <p style="color:#64748b;font-size:14px;line-height:1.7;max-width:300px;margin:0 auto 24px;">
+          Submit a ticket to trigger the 4-step RAG pipeline: ticket analysis → KB retrieval → context augmentation → resolution.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto;">
+          {% for label in ['Ticket Analysis & Query Generation','Knowledge Base Retrieval','Context Augmentation','Response Generation'] %}
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+            <div style="width:24px;height:24px;border-radius:6px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#94a3b8;">{{ loop.index }}</div>
+            <span style="font-size:13px;color:#64748b;">{{ label }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- end grid -->
+</main>
+
+</body>
+</html>

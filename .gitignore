@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .env
 .env.*
 !.env.example
@@ -5,3 +6,9 @@
 venv/
 __pycache__/
 *.py[cod]
+=======
+__pycache__/
+*.pyc
+tickets.db
+.venv/
+>>>>>>> 3a451190ad8d366b56c9c3829c7600740b7b98f5
