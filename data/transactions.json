@@ -1,5 +1,101 @@
 [
   {
+    "timestamp": "2026-10-08T09:55:15",
+    "customer_name": "Meera Singh",
+    "customer_email": "meera@example.com",
+    "query": "My credit card was charged twice for the same transaction",
+    "category": "Credit Card",
+    "risk": "LOW",
+    "confidence": 51.15,
+    "status": "ESCALATE",
+    "jira": {
+      "success": true,
+      "ticket_id": "BAN-101",
+      "ticket_url": "https://supportpilot2026.atlassian.net/browse/BAN-101",
+      "message": "Jira ticket BAN-101 generated successfully"
+    },
+    "email": {
+      "success": true,
+      "message": "Email notification sent"
+    },
+    "steps": [
+      "Check card validity and available balance",
+      "Verify transaction limits and whether the relevant transaction type is enabled in the official banking application",
+      "If the payment continues to fail, contact the bank using its official support channel."
+    ]
+  },
+  {
+    "timestamp": "2026-10-08T09:47:07",
+    "customer_name": "Deepak Kumar",
+    "customer_email": "deepak@example.com",
+    "query": "Unauthorized credit card debit of Rs 5000",
+    "category": "Credit Card",
+    "risk": "LOW",
+    "confidence": 51.15,
+    "status": "ESCALATE",
+    "jira": {
+      "success": false,
+      "message": "Jira returned HTTP 400: The target project doesn't exist or you don't have permission to create issues in it.; project: The target project doesn't exist or you don't have permission to create issues in it."
+    },
+    "email": {
+      "success": true,
+      "message": "Email notification sent"
+    },
+    "steps": [
+      "Check card validity and available balance",
+      "Verify transaction limits and whether the relevant transaction type is enabled in the official banking application",
+      "If the payment continues to fail, contact the bank using its official support channel."
+    ]
+  },
+  {
+    "timestamp": "2026-10-08T09:35:12",
+    "customer_name": "Ankit Verma",
+    "customer_email": "ankit.verma@example.com",
+    "query": "I cannot withdraw cash from the ATM machine",
+    "category": "ATM",
+    "risk": "LOW",
+    "confidence": 54.94,
+    "status": "ESCALATE",
+    "jira": {
+      "success": false,
+      "message": "Jira returned HTTP 400. The target project doesn't exist or you don't have permission to create issues in it.; project: The target project doesn't exist or you don't have permission to create issues in it."
+    },
+    "email": {
+      "success": true,
+      "message": "Email notification sent"
+    },
+    "steps": [
+      "Check the ATM transaction status in the official banking application",
+      "Confirm whether the account was debited",
+      "Keep the ATM location, date, time and transaction reference",
+      "If the cash was not received and the amount remains debited, raise an ATM cash dispute through the bank."
+    ]
+  },
+  {
+    "timestamp": "2026-10-08T09:23:16",
+    "customer_name": "Test User",
+    "customer_email": "test@example.com",
+    "query": "Forgot netbanking login password",
+    "category": "Authentication",
+    "risk": "LOW",
+    "confidence": 63.75,
+    "status": "ESCALATE",
+    "jira": {
+      "success": false,
+      "message": "Jira returned HTTP 400. The target project doesn't exist or you don't have permission to create issues in it.; project: The target project doesn't exist or you don't have permission to create issues in it."
+    },
+    "email": {
+      "success": true,
+      "message": "Email notification sent"
+    },
+    "steps": [
+      "Use the official banking application or website",
+      "Select the password recovery option",
+      "Complete the bank's approved identity verification process and create a new password",
+      "Never share passwords, PINs or one-time passwords with anyone."
+    ]
+  },
+  {
     "timestamp": "2026-10-07T14:07:31",
     "customer_name": "Test User",
     "customer_email": "adharshgm5@gmail.com",

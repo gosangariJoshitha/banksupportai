@@ -355,8 +355,52 @@
                         <label>Current Threshold: <strong id="currentThresholdLabel">75%</strong></label>
                         <input type="range" id="thresholdSlider" min="50" max="95" step="5" value="75"
                             oninput="document.getElementById('currentThresholdLabel').textContent = this.value + '%'">
-                        <button class="primary-btn sm" onclick="saveSettings()">Save Threshold</button>
+                        <button class="primary-btn sm" onclick="saveThresholdSetting()">Save Threshold</button>
                     </div>
+                </div>
+
+                <div class="settings-card mt-20">
+                    <h3>Jira Integration Setup</h3>
+                    <p class="muted">Configure Jira Cloud REST API v3 to create support tickets for escalated cases.</p>
+                    <div class="form-group">
+                        <label>Jira Site URL</label>
+                        <input id="jiraUrlInput" placeholder="https://yourdomain.atlassian.net">
+                    </div>
+                    <div class="form-group">
+                        <label>Jira Account Email</label>
+                        <input id="jiraEmailInput" placeholder="you@domain.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Jira API Token</label>
+                        <input id="jiraTokenInput" type="password" placeholder="Paste Atlassian API Token from id.atlassian.net">
+                    </div>
+                    <div class="form-group">
+                        <label>Jira Project Key</label>
+                        <input id="jiraProjectInput" placeholder="e.g. BANK or SUP">
+                    </div>
+                    <div class="form-actions mt-10">
+                        <button class="primary-btn sm" onclick="saveJiraSettings()">Save Jira Settings</button>
+                        <button class="secondary-btn sm" onclick="testJiraConnection()">⚡ Test Jira Connection</button>
+                    </div>
+                    <div id="jiraTestResult" class="mt-10"></div>
+                </div>
+
+                <div class="settings-card mt-20">
+                    <h3>Email Integration Setup</h3>
+                    <p class="muted">Configure Gmail SMTP gateway to dispatch automated case resolution updates to customers.</p>
+                    <div class="form-group">
+                        <label>Sender Email Address</label>
+                        <input id="smtpEmailInput" placeholder="you@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Gmail App Password (16 characters)</label>
+                        <input id="smtpPasswordInput" type="password" placeholder="16-character Gmail App Password">
+                    </div>
+                    <div class="form-actions mt-10">
+                        <button class="primary-btn sm" onclick="saveEmailSettings()">Save Email Settings</button>
+                        <button class="secondary-btn sm" onclick="testEmailConnection()">⚡ Test Email Connection</button>
+                    </div>
+                    <div id="emailTestResult" class="mt-10"></div>
                 </div>
 
                 <div class="settings-card mt-20">

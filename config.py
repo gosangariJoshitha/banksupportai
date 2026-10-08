@@ -16,3 +16,5 @@ SMTP_EMAIL = os.getenv("SMTP_EMAIL", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 
 AUTO_RESOLVE_THRESHOLD = float(os.getenv("AUTO_RESOLVE_THRESHOLD", "75.0"))
+JIRA_SIMULATION_MODE = os.getenv("JIRA_SIMULATION_MODE", "true").lower() in ("true", "1", "yes")
+

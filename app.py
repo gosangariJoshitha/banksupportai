@@ -312,14 +312,61 @@ def get_email_logs():
     return jsonify({"success": True, "count": len(logs), "logs": logs})
 
 
+ENV_PATH = Path(__file__).parent / ".env"
+
+def save_env_key(key, value):
+    lines = []
+    if ENV_PATH.exists():
+        lines = ENV_PATH.read_text(encoding="utf-8").splitlines()
+    found = False
+    new_lines = []
+    for line in lines:
+        if line.startswith(f"{key}="):
+            new_lines.append(f"{key}={value}")
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f"{key}={value}")
+    ENV_PATH.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
 @app.route("/api/settings", methods=["GET", "POST"])
 def settings_route():
     if request.method == "POST":
         data = request.get_json(silent=True) or {}
-        new_threshold = float(data.get("threshold", 75.0))
-        config.AUTO_RESOLVE_THRESHOLD = new_threshold
-        bank_ai.threshold = new_threshold
-        return jsonify({"success": True, "message": f"Threshold updated to {new_threshold}%"})
+        if "threshold" in data:
+            new_threshold = float(data.get("threshold", 75.0))
+            config.AUTO_RESOLVE_THRESHOLD = new_threshold
+            bank_ai.threshold = new_threshold
+            save_env_key("AUTO_RESOLVE_THRESHOLD", str(new_threshold))
+
+        if "jira_url" in data:
+            val = data["jira_url"].strip()
+            config.JIRA_URL = val
+            save_env_key("JIRA_URL", val)
+        if "jira_email" in data:
+            val = data["jira_email"].strip()
+            config.JIRA_EMAIL = val
+            save_env_key("JIRA_EMAIL", val)
+        if "jira_api_token" in data and data["jira_api_token"]:
+            val = data["jira_api_token"].strip()
+            config.JIRA_API_TOKEN = val
+            save_env_key("JIRA_API_TOKEN", val)
+        if "jira_project" in data:
+            val = data["jira_project"].strip()
+            config.JIRA_PROJECT_KEY = val
+            save_env_key("JIRA_PROJECT_KEY", val)
+
+        if "smtp_email" in data:
+            val = data["smtp_email"].strip()
+            config.SMTP_EMAIL = val
+            save_env_key("SMTP_EMAIL", val)
+        if "smtp_password" in data and data["smtp_password"]:
+            val = "".join(data["smtp_password"].split())
+            config.SMTP_PASSWORD = val
+            save_env_key("SMTP_PASSWORD", val)
+
+        return jsonify({"success": True, "message": "Settings updated successfully."})
 
     return jsonify({
         "success": True,
@@ -340,6 +387,17 @@ def settings_route():
             "threshold": bank_ai.threshold
         }
     })
+
+@app.route("/api/test/jira", methods=["POST"])
+def test_jira_route():
+    res = jira_service.test_connection()
+    return jsonify(res)
+
+@app.route("/api/test/email", methods=["POST"])
+def test_email_route():
+    res = email_service.test_connection()
+    return jsonify(res)
+
 
 
 @app.route("/api/health")

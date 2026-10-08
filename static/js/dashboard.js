@@ -84,22 +84,28 @@ async function loadAllData() {
 // Preset Quick Fill
 function fillSample(type) {
     const nameInput = document.getElementById("customerName");
+    const emailInput = document.getElementById("email");
     const queryInput = document.getElementById("query");
 
     if (type === "upi") {
         nameInput.value = "Rahul Sharma";
+        emailInput.value = "rahul.sharma@example.com";
         queryInput.value = "My UPI payment of Rs 2,500 failed at a store but money was debited from my account.";
     } else if (type === "atm") {
         nameInput.value = "Priya Patel";
+        emailInput.value = "priya.patel@example.com";
         queryInput.value = "I tried to withdraw cash from ATM but no money came out, but account received SMS for debit.";
     } else if (type === "fraud") {
         nameInput.value = "Amit Verma";
+        emailInput.value = "amit.verma@example.com";
         queryInput.value = "An unauthorized transaction of Rs 15,000 was made on my credit card without my OTP or permission!";
     } else if (type === "pwd") {
         nameInput.value = "Sneha Gupta";
+        emailInput.value = "sneha.gupta@example.com";
         queryInput.value = "I forgot my net banking password and cannot log into my bank account.";
     }
 }
+
 
 // 1. Process Query via Multi-Agent Engine
 async function processQuery() {
@@ -449,17 +455,27 @@ async function loadEscalations() {
             return;
         }
 
-        tbody.innerHTML = data.cases.map(c => `
-            <tr>
-                <td>${esc(c.timestamp.replace("T", " "))}</td>
-                <td><b>${esc(c.customer_name)}</b></td>
-                <td><span class="badge blue">${esc(c.category)}</span></td>
-                <td>${esc(c.query)}</td>
-                <td><span class="badge ${c.risk === "HIGH" ? "red" : "yellow"}">${esc(c.risk)}</span></td>
-                <td><b>${esc(c.confidence)}%</b></td>
-                <td>${c.jira?.ticket_id ? '<span class="badge green">Jira Key: ' + esc(c.jira.ticket_id) + '</span>' : '<span class="badge red">Escalated (Config Pending)</span>'}</td>
-            </tr>
-        `).join("");
+        tbody.innerHTML = data.cases.map(c => {
+            let jiraStatusHtml = '<span class="badge yellow">⚠ Escalated to Operator</span>';
+            if (c.jira) {
+                if (c.jira.ticket_id) {
+                    jiraStatusHtml = `<span class="badge green">✓ Jira Key: <b>${esc(c.jira.ticket_id)}</b></span>`;
+                } else if (c.jira.success === false) {
+                    jiraStatusHtml = `<span class="badge red" title="${esc(c.jira.message)}">❌ Jira Failed: ${esc(c.jira.message.substring(0, 35))}...</span>`;
+                }
+            }
+            return `
+                <tr>
+                    <td>${esc(c.timestamp.replace("T", " "))}</td>
+                    <td><b>${esc(c.customer_name)}</b></td>
+                    <td><span class="badge blue">${esc(c.category)}</span></td>
+                    <td>${esc(c.query)}</td>
+                    <td><span class="badge ${c.risk === "HIGH" ? "red" : "yellow"}">${esc(c.risk)}</span></td>
+                    <td><b>${esc(c.confidence)}%</b></td>
+                    <td>${jiraStatusHtml}</td>
+                </tr>
+            `;
+        }).join("");
     } catch (e) {
         console.error("Error loading escalations:", e);
     }
@@ -477,20 +493,38 @@ async function loadJiraTickets() {
             return;
         }
 
-        tbody.innerHTML = data.tickets.map(t => `
-            <tr>
-                <td>${esc(t.timestamp.replace("T", " "))}</td>
-                <td><b>${esc(t.customer_name)}</b></td>
-                <td>${esc(t.query)}</td>
-                <td><span class="badge ${t.risk === "HIGH" ? "red" : "yellow"}">${esc(t.risk)}</span></td>
-                <td><b>${esc(t.jira?.ticket_id || "PENDING")}</b></td>
-                <td><span class="badge ${t.jira?.success ? "green" : "yellow"}">${esc(t.jira?.message || "Triggered")}</span></td>
-            </tr>
-        `).join("");
+        tbody.innerHTML = data.tickets.map(t => {
+            const j = t.jira || {};
+            let ticketKeyHtml = '<span class="badge yellow">PENDING</span>';
+            let apiStatusHtml = '<span class="badge yellow">Not Triggered</span>';
+
+            if (j.ticket_id) {
+                const link = j.ticket_url || `#`;
+                ticketKeyHtml = `<span class="badge blue">🔑 <a href="${esc(link)}" target="_blank" style="color: inherit; text-decoration: underline;">${esc(j.ticket_id)}</a></span>`;
+                apiStatusHtml = '<span class="badge green">✓ Ticket Created (HTTP 201)</span>';
+            } else if (j.success === false) {
+                ticketKeyHtml = '<span class="badge red">Creation Failed</span>';
+                apiStatusHtml = `<span class="badge red" title="${esc(j.message)}">❌ ${esc(j.message)}</span>`;
+            } else if (j.message) {
+                apiStatusHtml = `<span class="badge yellow">${esc(j.message)}</span>`;
+            }
+
+            return `
+                <tr>
+                    <td>${esc(t.timestamp.replace("T", " "))}</td>
+                    <td><b>${esc(t.customer_name)}</b></td>
+                    <td>${esc(t.query)}</td>
+                    <td><span class="badge ${t.risk === "HIGH" ? "red" : "yellow"}">${esc(t.risk)}</span></td>
+                    <td>${ticketKeyHtml}</td>
+                    <td>${apiStatusHtml}</td>
+                </tr>
+            `;
+        }).join("");
     } catch (e) {
         console.error("Error loading Jira tickets:", e);
     }
 }
+
 
 // 8. Email Logs View
 async function loadEmailLogs() {
@@ -529,6 +563,13 @@ async function loadSettings() {
         document.getElementById("thresholdSlider").value = s.threshold;
         document.getElementById("currentThresholdLabel").textContent = s.threshold + "%";
 
+        if (document.getElementById("jiraUrlInput")) {
+            document.getElementById("jiraUrlInput").value = s.jira_url === "Not Configured" ? "" : s.jira_url;
+            document.getElementById("jiraEmailInput").value = s.jira_email === "Not Configured" ? "" : s.jira_email;
+            document.getElementById("jiraProjectInput").value = s.jira_project || "";
+            document.getElementById("smtpEmailInput").value = s.smtp_email === "Not Configured" ? "" : s.smtp_email;
+        }
+
         const infoGrid = document.getElementById("settingsInfo");
         infoGrid.innerHTML = `
             <div class="info-item">
@@ -544,16 +585,16 @@ async function loadSettings() {
                 <div class="info-val">${esc(s.jira_project)}</div>
             </div>
             <div class="info-item">
-                <div class="info-label">Jira Connection</div>
-                <div class="info-val">${s.jira_configured ? "Configured" : "Missing credentials in .env"}</div>
+                <div class="info-label">Jira Status</div>
+                <div class="info-val"><span class="badge ${s.jira_configured ? "green" : "red"}">${s.jira_configured ? "Configured" : "Incomplete"}</span></div>
             </div>
             <div class="info-item">
                 <div class="info-label">SMTP Gateway</div>
-                <div class="info-val">${esc(s.smtp_server)}:${esc(s.smtp_port)}</div>
+                <div class="info-val">${esc(s.smtp_server)}:${esc(s.smtp_port)} (${esc(s.smtp_email)})</div>
             </div>
             <div class="info-item">
-                <div class="info-label">Email Connection</div>
-                <div class="info-val">${s.smtp_configured ? "Configured" : "Missing credentials in .env"}</div>
+                <div class="info-label">SMTP Status</div>
+                <div class="info-val"><span class="badge ${s.smtp_configured ? "green" : "red"}">${s.smtp_configured ? "Configured" : "Incomplete"}</span></div>
             </div>
         `;
     } catch (e) {
@@ -561,7 +602,7 @@ async function loadSettings() {
     }
 }
 
-async function saveSettings() {
+async function saveThresholdSetting() {
     const val = document.getElementById("thresholdSlider").value;
     try {
         const res = await fetch("/api/settings", {
@@ -575,6 +616,83 @@ async function saveSettings() {
             await loadAllData();
         }
     } catch (e) {
-        alert("Failed to save settings: " + e.message);
+        alert("Failed to save threshold: " + e.message);
     }
 }
+
+async function saveJiraSettings() {
+    const jira_url = document.getElementById("jiraUrlInput").value.trim();
+    const jira_email = document.getElementById("jiraEmailInput").value.trim();
+    const jira_api_token = document.getElementById("jiraTokenInput").value.trim();
+    const jira_project = document.getElementById("jiraProjectInput").value.trim();
+
+    try {
+        const res = await fetch("/api/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jira_url, jira_email, jira_api_token, jira_project })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("Jira settings saved successfully!");
+            document.getElementById("jiraTokenInput").value = "";
+            await loadAllData();
+        }
+    } catch (e) {
+        alert("Failed to save Jira settings: " + e.message);
+    }
+}
+
+async function testJiraConnection() {
+    const output = document.getElementById("jiraTestResult");
+    output.innerHTML = '<span class="badge yellow">Testing Jira API Connection...</span>';
+    try {
+        const res = await fetch("/api/test/jira", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            output.innerHTML = `<span class="badge green">✓ ${esc(data.message)}</span>`;
+        } else {
+            output.innerHTML = `<span class="badge red">❌ ${esc(data.message)}</span>`;
+        }
+    } catch (e) {
+        output.innerHTML = `<span class="badge red">Error testing Jira: ${esc(e.message)}</span>`;
+    }
+}
+
+async function saveEmailSettings() {
+    const smtp_email = document.getElementById("smtpEmailInput").value.trim();
+    const smtp_password = document.getElementById("smtpPasswordInput").value.trim();
+
+    try {
+        const res = await fetch("/api/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ smtp_email, smtp_password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("Email settings saved successfully!");
+            document.getElementById("smtpPasswordInput").value = "";
+            await loadAllData();
+        }
+    } catch (e) {
+        alert("Failed to save Email settings: " + e.message);
+    }
+}
+
+async function testEmailConnection() {
+    const output = document.getElementById("emailTestResult");
+    output.innerHTML = '<span class="badge yellow">Testing SMTP Gateway Connection...</span>';
+    try {
+        const res = await fetch("/api/test/email", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            output.innerHTML = `<span class="badge green">✓ ${esc(data.message)}</span>`;
+        } else {
+            output.innerHTML = `<span class="badge red">❌ ${esc(data.message)}</span>`;
+        }
+    } catch (e) {
+        output.innerHTML = `<span class="badge red">Error testing SMTP: ${esc(e.message)}</span>`;
+    }
+}
+
